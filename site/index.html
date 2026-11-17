@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lebenserwartung im Kreisvergleich</title>
+<meta name="description" content="Vergleichen Sie die Lebenserwartung in zwei Kreisen in Deutschland – mit Daten zur sozioökonomischen Lage (GISD, INKAR).">
+<meta name="color-scheme" content="light dark">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%23111'/%3E%3Ccircle cx='11' cy='16' r='5' fill='%232a78d6'/%3E%3Ccircle cx='21' cy='16' r='5' fill='%23eb6834'/%3E%3C/svg%3E">
+<link rel="preload" href="assets/fonts/libre-franklin-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/source-serif-4-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<a class="skip" href="#results" data-i18n="skip">Zum Ergebnis springen</a>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="masthead-top">
+      <p class="kicker" data-i18n="kicker">Regionale Ungleichheit in Deutschland</p>
+      <div class="lang" role="group" aria-label="Sprache / Language" data-i18n-aria="langGroup">
+        <button type="button" data-set-lang="de" aria-pressed="true" lang="de">DE</button>
+        <button type="button" data-set-lang="en" aria-pressed="false" lang="en">EN</button>
+      </div>
+    </div>
+    <h1 data-i18n="title">Lebenserwartung im Kreisvergleich</h1>
+    <p class="dek" data-i18n="dek">Wählen Sie zwei Orte in Deutschland. Das Werkzeug vergleicht die Lebenserwartung in den Landkreisen und kreisfreien Städten, in denen sie liegen, und zeigt, wie es dort um Bildung, Arbeit und Einkommen steht.</p>
+  </div>
+</header>
+
+<section class="pickers wrap" aria-labelledby="pick-h">
+  <h2 id="pick-h" class="visually-hidden" data-i18n="pickHeading">Orte wählen</h2>
+  <div class="picker-row">
+    <div class="picker" data-slot="A">
+      <label class="picker-label" for="input-A"><span class="key key-a" aria-hidden="true">A</span><span data-i18n="slotA">Ort A</span><span class="chip" data-example-chip hidden data-i18n="exampleNote">Beispiel</span></label>
+      <div class="search">
+        <input id="input-A" type="text" autocomplete="off" spellcheck="false" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="list-A" data-i18n-placeholder="placeholder" placeholder="Adresse, Ort, PLZ, Kreis oder Koordinaten">
+        <button type="button" class="icon-btn" data-act="search" data-i18n-aria="searchBtn" aria-label="Suchen"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12.6 12.6 17 17" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button>
+        <button type="button" class="icon-btn" data-act="locate" data-i18n-aria="locateBtn" aria-label="Meinen Standort verwenden"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="4.2" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="10" cy="10" r="1.4" fill="currentColor"/><path d="M10 1.5v3M10 15.5v3M1.5 10h3M15.5 10h3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+        <button type="button" class="icon-btn" data-act="clear" data-i18n-aria="clearBtn" aria-label="Auswahl entfernen"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5 5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button>
+        <ul class="listbox" id="list-A" role="listbox" hidden></ul>
+      </div>
+      <div class="picker-status" id="status-A" aria-live="polite"></div>
+    </div>
+
+    <button type="button" class="swap" id="swap" data-i18n-aria="swapBtn" aria-label="Orte tauschen"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 7h13M12 3l4 4-4 4M17 13H4M8 9l-4 4 4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+
+    <div class="picker" data-slot="B">
+      <label class="picker-label" for="input-B"><span class="key key-b" aria-hidden="true">B</span><span data-i18n="slotB">Ort B</span><span class="chip" data-example-chip hidden data-i18n="exampleNote">Beispiel</span></label>
+      <div class="search">
+        <input id="input-B" type="text" autocomplete="off" spellcheck="false" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="list-B" data-i18n-placeholder="placeholder" placeholder="Adresse, Ort, PLZ, Kreis oder Koordinaten">
+        <button type="button" class="icon-btn" data-act="search" data-i18n-aria="searchBtn" aria-label="Suchen"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12.6 12.6 17 17" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button>
+        <button type="button" class="icon-btn" data-act="locate" data-i18n-aria="locateBtn" aria-label="Meinen Standort verwenden"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="4.2" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="10" cy="10" r="1.4" fill="currentColor"/><path d="M10 1.5v3M10 15.5v3M1.5 10h3M15.5 10h3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+        <button type="button" class="icon-btn" data-act="clear" data-i18n-aria="clearBtn" aria-label="Auswahl entfernen"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5 5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button>
+        <ul class="listbox" id="list-B" role="listbox" hidden></ul>
+      </div>
+      <div class="picker-status" id="status-B" aria-live="polite"></div>
+    </div>
+  </div>
+  <p class="pick-hint" data-i18n="pickHint">Möglich sind Adressen, Orte, Postleitzahlen, Kreise, Koordinaten (z. B. 52.5163, 13.3777), Plus Codes und Links aus Google Maps oder OpenStreetMap. Oder klicken Sie in die Karte.</p>
+  <p class="example-note" id="example-note" hidden><span class="chip" data-i18n="exampleNote">Beispiel</span><span data-i18n="exampleExplain"></span></p>
+</section>
+
+<div class="controls" id="controls" role="region" data-i18n-aria="controlsLabel" aria-label="Einstellungen">
+  <div class="wrap controls-inner">
+    <div class="ctl">
+      <span class="ctl-label" id="sex-label" data-i18n="sexLabel">Geschlecht</span>
+      <div class="seg" role="radiogroup" aria-labelledby="sex-label" id="sex-ctl">
+        <input type="radio" name="sex" id="sex-both" value="both" checked><label for="sex-both" data-i18n="sex_both">Gesamt</label>
+        <input type="radio" name="sex" id="sex-female" value="female"><label for="sex-female" data-i18n="sex_female">Frauen</label>
+        <input type="radio" name="sex" id="sex-male" value="male"><label for="sex-male" data-i18n="sex_male">Männer</label>
+      </div>
+    </div>
+    <div class="ctl">
+      <label class="ctl-label" for="age-ctl" data-i18n="ageLabel">Alter</label>
+      <select id="age-ctl" class="select"></select>
+    </div>
+    <div class="ctl">
+      <span class="ctl-label" id="period-label" data-i18n="periodLabel">Zeitraum</span>
+      <div class="seg" role="radiogroup" aria-labelledby="period-label" id="period-ctl"></div>
+    </div>
+    <div class="share">
+      <button type="button" class="btn" id="share-btn"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M8.5 11.5a3.5 3.5 0 0 0 5 0l2.5-2.5a3.5 3.5 0 0 0-5-5l-1 1M11.5 8.5a3.5 3.5 0 0 0-5 0L4 11a3.5 3.5 0 0 0 5 5l1-1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span data-i18n="shareBtn">Link kopieren</span></button>
+      <span class="share-status" id="share-status" aria-live="polite"></span>
+    </div>
+  </div>
+</div>
+
+<main class="wrap layout" id="results">
+  <aside class="map-col">
+    <figure class="map-card">
+      <div class="map-head">
+        <h2 id="map-title">Lebenserwartung</h2>
+        <p id="map-sub"></p>
+      </div>
+      <div class="map-legend" id="map-legend"></div>
+      <div class="map-wrap" id="map-wrap">
+        <svg id="map" role="img" data-i18n-aria="mapAria" aria-label="Karte der Kreise in Deutschland"></svg>
+        <div class="map-tools">
+          <button type="button" id="zoom-in" data-i18n-aria="zoomIn" aria-label="Vergrößern"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+          <button type="button" id="zoom-out" data-i18n-aria="zoomOut" aria-label="Verkleinern"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+          <button type="button" id="zoom-reset" data-i18n-aria="zoomReset" aria-label="Ganz Deutschland zeigen"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        </div>
+      </div>
+      <div class="map-target">
+        <span id="map-target-label" data-i18n="mapClick">Klick in die Karte setzt</span>
+        <div class="seg" role="radiogroup" aria-labelledby="map-target-label">
+          <input type="radio" name="target" id="target-A" value="A" checked><label for="target-A"><span class="key key-a key-sm" aria-hidden="true"></span><span data-i18n="slotA">Ort A</span></label>
+          <input type="radio" name="target" id="target-B" value="B"><label for="target-B"><span class="key key-b key-sm" aria-hidden="true"></span><span data-i18n="slotB">Ort B</span></label>
+        </div>
+      </div>
+      <figcaption class="map-caption"><span data-i18n="mapCaption"></span> <span data-i18n="sourceLe"></span>. <span data-i18n="sourceMap"></span>.</figcaption>
+    </figure>
+  </aside>
+
+  <div class="results-col">
+    <section id="hero" aria-live="polite">
+      <p class="hero-eyebrow" id="hero-eyebrow"></p>
+      <div class="hero-grid">
+        <div class="hero-fig" id="hero-A"></div>
+        <div class="hero-diff" id="hero-diff"></div>
+        <div class="hero-fig" id="hero-B"></div>
+      </div>
+      <p class="hero-sentence prose" id="hero-sentence"></p>
+    </section>
+
+    <section id="streetview" aria-labelledby="sv-h">
+      <div class="block-head"><h2 id="sv-h" data-i18n="svTitle">So sieht es dort aus</h2><p class="block-sub" id="sv-intro"></p></div>
+      <div class="sv-grid" id="sv-grid"></div>
+    </section>
+
+    <section id="distribution" aria-labelledby="dist-h">
+      <div class="block-head"><h2 id="dist-h" data-i18n="distTitle">Wo stehen die beiden Kreise?</h2><p class="block-sub" id="dist-sub"></p></div>
+      <div class="chart" id="chart-dist"></div>
+      <p class="source" data-i18n="sourceLe"></p>
+    </section>
+
+    <section id="change" aria-labelledby="change-h">
+      <div class="block-head"><h2 id="change-h" data-i18n="changeTitle">Wie hat sich die Lebenserwartung verändert?</h2><p class="block-sub" id="change-sub"></p></div>
+      <div class="tiles" id="change-tiles"></div>
+      <div class="legend" id="change-legend"></div>
+      <div class="chart" id="chart-periods"></div>
+      <p class="note" data-i18n="changeNote"></p>
+      <p class="source" data-i18n="sourceLe"></p>
+    </section>
+
+    <section id="annual" aria-labelledby="annual-h">
+      <div class="block-head"><h2 id="annual-h" data-i18n="annualTitle">Jahr für Jahr</h2><p class="block-sub" data-i18n="annualSub"></p></div>
+      <div class="legend" id="annual-legend"></div>
+      <div class="chart" id="chart-annual"></div>
+      <p class="note" data-i18n="annualNote"></p>
+      <p class="source" data-i18n="sourceAnnual"></p>
+    </section>
+
+    <section id="agegap" aria-labelledby="gap-h">
+      <div class="block-head"><h2 id="gap-h" data-i18n="gapTitle">Der Abstand in jedem Alter</h2><p class="block-sub" id="gap-sub"></p></div>
+      <div class="legend" id="gap-legend"></div>
+      <div class="chart" id="chart-gap"></div>
+      <p class="note" data-i18n="gapNote"></p>
+      <p class="source" data-i18n="sourceLe"></p>
+    </section>
+
+    <section id="gisd" aria-labelledby="gisd-h">
+      <div class="block-head"><h2 id="gisd-h" data-i18n="gisdTitle">Sozioökonomische Lage</h2><p class="block-sub" data-i18n="gisdIntro"></p></div>
+      <div class="gisd-cards" id="gisd-cards"></div>
+      <p class="sub-note" id="gisd-strip-sub"></p>
+      <div class="chart" id="chart-gisd-strip"></div>
+      <h3 class="sub-head" data-i18n="scatterTitle">Weniger Lebensjahre, wo die Deprivation hoch ist?</h3>
+      <p class="sub-note" id="scatter-sub"></p>
+      <div class="chart" id="chart-scatter"></div>
+      <p class="note" id="scatter-stat"></p>
+      <p class="note" data-i18n="ecoNote"></p>
+      <h3 class="sub-head" data-i18n="gisdTrendTitle">GISD seit 1998</h3>
+      <p class="sub-note" data-i18n="gisdTrendSub"></p>
+      <div class="chart" id="chart-gisd-trend"></div>
+      <p class="source"><span data-i18n="sourceGisd"></span>; <span data-i18n="sourceLe"></span></p>
+    </section>
+
+    <section id="inkar" aria-labelledby="inkar-h">
+      <div class="block-head"><h2 id="inkar-h" data-i18n="inkarTitle">Die Kennzahlen hinter dem GISD</h2><p class="block-sub" data-i18n="inkarIntro"></p></div>
+      <div class="table-scroll"><table class="ind-table" id="ind-table"></table></div>
+      <p class="note" data-i18n="ktypNote"></p>
+      <p class="source" data-i18n="sourceInkar"></p>
+    </section>
+
+    <details class="t400" id="t400">
+      <summary data-i18n="t400Summary">Alle 400 Kreise als Tabelle</summary>
+      <p class="sub-note" id="t400-intro"></p>
+      <div class="t400-wrap" id="t400-wrap"></div>
+    </details>
+  </div>
+</main>
+
+<section class="methods wrap" id="methods" aria-labelledby="methods-h">
+  <div class="block-head"></div>
+
+  <div data-lang-block="de">
+    <div class="methods-grid">
+      <div>
+        <h2 id="methods-h">So lesen Sie die Daten</h2>
+        <h3>Lebenserwartung</h3>
+        <p>Die Lebenserwartung bei Geburt gibt an, wie viele Jahre ein neugeborenes Kind im Durchschnitt leben würde, wenn die Sterblichkeit in jedem Alter so bliebe wie im betrachteten Zeitraum. Sie ist keine Vorhersage, sondern eine Zusammenfassung der aktuellen Sterblichkeitsverhältnisse (Periodensterbetafel). Die fernere Lebenserwartung, etwa mit 65 Jahren, gibt an, wie viele Jahre Menschen dieses Alters im Schnitt noch vor sich haben.</p>
+        <p>Die Werte stammen aus Sterbetafeln für alle 400 Kreise, die Andreas Höhn und Michael Mühlichen auf Grundlage der Todesfall- und Bevölkerungsstatistik der Statistischen Ämter des Bundes und der Länder berechnet haben (Methode nach Chiang, 95-%-Konfidenzintervalle nach Silcocks). Um zufällige Schwankungen zu glätten, sind die Werte zu Zeiträumen zusammengefasst: 2003–2005, 2009–2011, 2017–2019 und 2020–2021. Die Zeitreihen sind auf den heutigen Gebietsstand harmonisiert. Die Jahreswerte mit Konfidenzintervall liegen nur für Frauen und Männer getrennt vor.</p>
+        <h3>Unsicherheit</h3>
+        <p>In Kreisen mit wenigen Einwohner:innen beruhen die Werte auf wenigen Sterbefällen und schwanken deshalb stärker. Kleine Unterschiede zwischen zwei Kreisen, etwa unter einem halben Jahr, sollten nicht überinterpretiert werden. Der Zeitraum 2020–2021 umfasst zwei Jahre der Corona-Pandemie.</p>
+        <h3>GISD</h3>
+        <p>Der German Index of Socioeconomic Deprivation des Robert Koch-Instituts misst die sozioökonomische Benachteiligung von Regionen. Er beruht auf neun Kennzahlen aus drei Bereichen, die mit Hauptkomponentenanalysen gewichtet werden: Bildung (Beschäftigte mit Hochschulabschluss, Beschäftigte ohne Berufsabschluss, Schulabgänger:innen ohne Abschluss), Beschäftigung (Arbeitslosigkeit, Beschäftigtenquote, Bruttoverdienst) und Einkommen (Einkommensteuer, Haushaltseinkommen, Schuldnerquote). Jeder Bereich zählt etwa ein Drittel. Der Index wird für jedes Jahr auf eine Spanne von 0 bis 1 normiert und ist daher relativ: Ein sinkender Wert heißt nicht zwingend, dass die Deprivation absolut abgenommen hat. Verwendet wird der Datenstand vom 18.05.2026 (Jahre 1998–2023, Gebietsstand 31.12.2023). Für den Zusammenhang mit der Lebenserwartung wird der GISD über die Jahre des gewählten Zeitraums gemittelt.</p>
+        <h3>INKAR-Kennzahlen</h3>
+        <p>Die Tabelle zeigt die neun GISD-Kennzahlen für die beiden Kreise aus der INKAR-Datenbank (Ausgabe 07/2025), jeweils im jüngsten verfügbaren Jahr. Die Arbeitslosigkeit ist wie im GISD berechnet: Arbeitslose je 100 Einwohner:innen von 15 bis 64 Jahren. Die Ursprungsdaten stammen aus der Statistik der Bundesagentur für Arbeit, der Statistik der allgemeinbildenden Schulen, den Volkswirtschaftlichen Gesamtrechnungen der Länder, dem Realsteuervergleich und dem SchuldnerAtlas der Creditreform. In der INKAR-Gesamtdatei 2025 ist die Schuldnerquote für 2023 um den Faktor 100 zu hoch angegeben; diese Werte wurden durch 100 geteilt. Der GISD selbst beruht auf einem eigenen, teils früheren INKAR-Abzug und eigenen Bereinigungen, daher lässt er sich aus diesen Werten nicht exakt nachrechnen.</p>
+        <h3>Ortssuche</h3>
+        <p>Gemeinden und ihre Ortsmittelpunkte stammen aus den Verwaltungsgebieten des BKG (VG250, Stand 31.12.2023). Postleitzahlen werden dem Kreis zugeordnet, in dem die meisten Einwohner:innen des PLZ-Gebiets leben; Grundlage ist die PLZ-Gemeinde-Verschneidung aus dem GISD-Repositorium. Straßenadressen werden über Nominatim (OpenStreetMap) in Koordinaten umgerechnet. Jeder Punkt wird anschließend anhand der Kreisgrenzen (VG250, auf 10 Meter vereinfacht) einem Kreis zugeordnet.</p>
+        <h3>Grenzen der Aussagekraft</h3>
+        <p>Alle Werte beschreiben Kreise als Ganzes. Innerhalb eines Kreises kann die Lebenserwartung je nach Stadtteil, Einkommen oder Bildung stark variieren. Aus Kreiswerten lässt sich nicht auf einzelne Menschen schließen (ökologischer Fehlschluss). Ein statistischer Zusammenhang zwischen Deprivation und Lebenserwartung belegt noch keine Ursache: Auch Wanderungen, Alters- und Berufsstruktur oder die Gesundheitsversorgung spielen eine Rolle.</p>
+        <h3>Datenschutz</h3>
+        <p>Die Seite lädt Schriften und Programmbibliotheken vom eigenen Server und setzt keine Cookies. Eingaben in die Suchfelder werden im Browser ausgewertet. Nur wenn Sie eine Straßenadresse suchen, wird der Suchtext an den Nominatim-Dienst der OpenStreetMap Foundation übertragen. Erst wenn Sie Street View laden, werden Daten an Google übertragen. Ihre Sprachwahl und Ihre Zustimmung zu Street View speichert der Browser lokal.</p>
+      </div>
+      <div>
+        <h2>Quellen</h2>
+        <ol class="refs">
+          <li>Hoehn, A., &amp; Mühlichen, M. (2026, March 21). <i>Do Welfare Regimes Matter? A Comparative Analysis of Area-Level Inequalities in Life Expectancy</i> [Datensatz]. OSF. <a href="https://doi.org/10.17605/OSF.IO/ZG5TJ">https://doi.org/10.17605/OSF.IO/ZG5TJ</a> <span class="lic">Lizenz CC BY 4.0. Verwendet: DE_UK_LifeExpectancy_Districts_2003-2021.xlsx (Tabellen Figure1, Figure2, FigureS1, FigureS2), DE_UK_Districts_Names.xlsx.</span></li>
+          <li>Mühlichen, M., Höhn, A., Lomax, N., Meier, P., &amp; Grigoriev, P. (2026). Do welfare regimes matter? A comparative analysis of area-level inequalities in life expectancy in Germany and the United Kingdom, 2003–2021. <i>Geographical Analysis, 58</i>(2), e70040. <a href="https://doi.org/10.1111/gean.70040">https://doi.org/10.1111/gean.70040</a></li>
+          <li>Michalski, N., Soliman, L., Reis, M., Tetzlaff, F., Nowossadeck, E., &amp; Hoebel, J. (2026). <i>German Index of Socioeconomic Deprivation (GISD)</i> [Datensatz, Version 2026-05-18]. Zenodo. <a href="https://doi.org/10.5281/zenodo.18983808">https://doi.org/10.5281/zenodo.18983808</a> <span class="lic">Lizenz CC BY 4.0. Bezogen über <a href="https://github.com/robert-koch-institut/German_Index_of_Socioeconomic_Deprivation_GISD/releases/tag/2026-05-18">GitHub, Release 2026-05-18</a> (GISD_Bund.tsv, EW_Gem_PLZ_Intersect_2023.rds).</span></li>
+          <li>Michalski, N., Reis, M., Tetzlaff, F., Herber, M., Kroll, L. E., Hövener, C., Nowossadeck, E., &amp; Hoebel, J. (2022). German Index of Socioeconomic Deprivation (GISD): Revision, Aktualisierung und Anwendungsbeispiele. <i>Journal of Health Monitoring, 7</i>(S5), 2–24. <a href="https://doi.org/10.25646/10640">https://doi.org/10.25646/10640</a></li>
+          <li>Laufende Raumbeobachtung des BBSR – INKAR, Ausgabe 07/2025. Hrsg.: Bundesinstitut für Bau-, Stadt- und Raumforschung (BBSR), Bonn. <a href="https://www.inkar.de/">https://www.inkar.de/</a> <span class="lic">Datenlizenz Deutschland – Namensnennung – Version 2.0 (dl-de/by-2-0). Verwendet: Gesamtdatei inkar_2025.csv und Referenzdatei der Raumgliederungen 2023.</span></li>
+          <li>© GeoBasis-DE / BKG (2025). <i>Verwaltungsgebiete 1:250 000 mit Einwohnerzahlen (VG250-EW), Stand 31.12.2023</i>. <a href="https://gdz.bkg.bund.de/">https://gdz.bkg.bund.de/</a> <span class="lic">Datenlizenz Deutschland – Namensnennung – Version 2.0. Geometrien vereinfacht.</span></li>
+          <li>Adresssuche: Nominatim, Daten © OpenStreetMap-Mitwirkende, <a href="https://www.openstreetmap.org/copyright">ODbL</a>. Straßenansichten: Google Street View.</li>
+          <li><span class="lic">Software: D3.js und TopoJSON (ISC-Lizenz); Schriften Source Serif 4 und Libre Franklin (SIL Open Font License 1.1).</span></li>
+        </ol>
+        <p>Wenn Sie Zahlen oder Abbildungen aus diesem Werkzeug verwenden, nennen Sie bitte die Originalquellen.</p>
+      </div>
+    </div>
+  </div>
+
+  <div data-lang-block="en" hidden>
+    <div class="methods-grid">
+      <div>
+        <h2>How to read the data</h2>
+        <h3>Life expectancy</h3>
+        <p>Life expectancy at birth is the average number of years a newborn would live if mortality at every age stayed as it was in the period shown. It is not a forecast but a summary of current mortality conditions (period life table). Remaining life expectancy, for example at age 65, is the average number of years people of that age still have ahead of them.</p>
+        <p>The values come from life tables for all 400 districts calculated by Andreas Höhn and Michael Mühlichen from the death and population statistics of the Federal and State Statistical Offices (Chiang method, 95% confidence intervals after Silcocks). To smooth out random fluctuation, the values are pooled into periods: 2003–2005, 2009–2011, 2017–2019 and 2020–2021. The time series are harmonised to current district boundaries. Annual values with confidence intervals are available for women and men separately only.</p>
+        <h3>Uncertainty</h3>
+        <p>In districts with few residents, the values rest on few deaths and therefore fluctuate more. Small differences between two districts, for example less than half a year, should not be over-interpreted. The 2020–2021 period covers two years of the Covid-19 pandemic.</p>
+        <h3>GISD</h3>
+        <p>The German Index of Socioeconomic Deprivation by the Robert Koch Institute measures the socioeconomic disadvantage of regions. It is built from nine indicators in three domains, weighted by principal component analysis: education (employees with a university degree, employees without vocational qualification, school leavers without qualification), employment (unemployment, employment rate, gross earnings) and income (income tax, household income, over-indebtedness). Each domain counts for about one third. The index is rescaled to the range 0 to 1 every year and is therefore relative: a falling value does not necessarily mean that deprivation has fallen in absolute terms. This tool uses the release of 18 May 2026 (years 1998–2023, boundaries as of 31 Dec 2023). For the association with life expectancy, the GISD is averaged over the years of the selected period.</p>
+        <h3>INKAR indicators</h3>
+        <p>The table shows the nine GISD indicators for the two districts from the INKAR database (edition 07/2025), each for the latest available year. Unemployment is computed as for the GISD: unemployed people per 100 residents aged 15 to 64. The underlying data come from the Federal Employment Agency, the statistics of general education schools, the regional national accounts, the comparison of local taxes, and the Creditreform SchuldnerAtlas. In the INKAR 2025 bulk file, the 2023 over-indebtedness rate is reported 100 times too high; these values were divided by 100. The GISD itself is based on its own, partly earlier INKAR extract and its own data cleaning, so it cannot be recomputed exactly from these values.</p>
+        <h3>Place search</h3>
+        <p>Municipalities and their reference points come from the administrative areas of the Federal Agency for Cartography and Geodesy (BKG, VG250, as of 31 Dec 2023). Postcodes are assigned to the district in which most of the postcode area’s residents live, based on the postcode–municipality intersection in the GISD repository. Street addresses are converted to coordinates with Nominatim (OpenStreetMap). Every point is then assigned to a district using the VG250 district boundaries, simplified to 10 metres.</p>
+        <h3>Limits</h3>
+        <p>All values describe districts as a whole. Within a district, life expectancy can vary widely by neighbourhood, income or education. District values say nothing about individuals (ecological fallacy). A statistical association between deprivation and life expectancy is not proof of a cause; migration, age and occupational structure, and health care also play a role.</p>
+        <h3>Privacy</h3>
+        <p>The site loads fonts and code libraries from its own server and sets no cookies. What you type into the search fields is processed in your browser. Only when you search for a street address is the search text sent to the Nominatim service of the OpenStreetMap Foundation. Data is sent to Google only when you load Street View. Your browser stores your language choice and your Street View consent locally.</p>
+      </div>
+      <div>
+        <h2>Sources</h2>
+        <ol class="refs">
+          <li>Hoehn, A., &amp; Mühlichen, M. (2026, March 21). <i>Do Welfare Regimes Matter? A Comparative Analysis of Area-Level Inequalities in Life Expectancy</i> [Data set]. OSF. <a href="https://doi.org/10.17605/OSF.IO/ZG5TJ">https://doi.org/10.17605/OSF.IO/ZG5TJ</a> <span class="lic">Licence CC BY 4.0. Used: DE_UK_LifeExpectancy_Districts_2003-2021.xlsx (sheets Figure1, Figure2, FigureS1, FigureS2), DE_UK_Districts_Names.xlsx.</span></li>
+          <li>Mühlichen, M., Höhn, A., Lomax, N., Meier, P., &amp; Grigoriev, P. (2026). Do welfare regimes matter? A comparative analysis of area-level inequalities in life expectancy in Germany and the United Kingdom, 2003–2021. <i>Geographical Analysis, 58</i>(2), e70040. <a href="https://doi.org/10.1111/gean.70040">https://doi.org/10.1111/gean.70040</a></li>
+          <li>Michalski, N., Soliman, L., Reis, M., Tetzlaff, F., Nowossadeck, E., &amp; Hoebel, J. (2026). <i>German Index of Socioeconomic Deprivation (GISD)</i> [Data set, version 2026-05-18]. Zenodo. <a href="https://doi.org/10.5281/zenodo.18983808">https://doi.org/10.5281/zenodo.18983808</a> <span class="lic">Licence CC BY 4.0. Obtained from <a href="https://github.com/robert-koch-institut/German_Index_of_Socioeconomic_Deprivation_GISD/releases/tag/2026-05-18">GitHub, release 2026-05-18</a> (GISD_Bund.tsv, EW_Gem_PLZ_Intersect_2023.rds).</span></li>
+          <li>Michalski, N., Reis, M., Tetzlaff, F., Herber, M., Kroll, L. E., Hövener, C., Nowossadeck, E., &amp; Hoebel, J. (2022). German Index of Socioeconomic Deprivation (GISD): Revision, update and applications. <i>Journal of Health Monitoring, 7</i>(S5), 2–23. <a href="https://doi.org/10.25646/10641">https://doi.org/10.25646/10641</a></li>
+          <li>Laufende Raumbeobachtung des BBSR – INKAR, Ausgabe 07/2025. Hrsg.: Bundesinstitut für Bau-, Stadt- und Raumforschung (BBSR), Bonn. <a href="https://www.inkar.de/">https://www.inkar.de/</a> <span class="lic">Data licence Germany – attribution – version 2.0 (dl-de/by-2-0). Used: bulk file inkar_2025.csv and the 2023 spatial reference file.</span></li>
+          <li>© GeoBasis-DE / BKG (2025). <i>Verwaltungsgebiete 1:250 000 mit Einwohnerzahlen (VG250-EW), Stand 31.12.2023</i>. <a href="https://gdz.bkg.bund.de/">https://gdz.bkg.bund.de/</a> <span class="lic">Data licence Germany – attribution – version 2.0. Geometries simplified.</span></li>
+          <li>Address search: Nominatim, data © OpenStreetMap contributors, <a href="https://www.openstreetmap.org/copyright">ODbL</a>. Street-level imagery: Google Street View.</li>
+          <li><span class="lic">Software: D3.js and TopoJSON (ISC licence); typefaces Source Serif 4 and Libre Franklin (SIL Open Font License 1.1).</span></li>
+        </ol>
+        <p>If you use numbers or figures from this tool, please cite the original sources.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site-foot">
+  <div class="wrap foot-inner">
+    <span id="foot-credit"></span>
+    <span id="foot-built"></span>
+  </div>
+</footer>
+
+<div class="tooltip" id="tooltip" role="status" hidden></div>
+
+<script src="config.js"></script>
+<script src="assets/vendor/d3.v7.9.0.min.js"></script>
+<script src="assets/vendor/topojson-client.v3.1.0.min.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/search.js"></script>
+<script src="assets/js/charts.js"></script>
+<script src="assets/js/map.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+# keep LF line endings in the repository and on the web server
+* text=auto eol=lf
+*.woff2 binary
+*.png binary

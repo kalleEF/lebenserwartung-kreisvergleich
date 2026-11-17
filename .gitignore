@@ -1,0 +1,16 @@
+# raw source data (~0.5 GB, fetched by scripts/download_sources.py)
+raw/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# local tool settings
+.claude/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
