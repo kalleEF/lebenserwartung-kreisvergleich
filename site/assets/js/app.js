@@ -338,8 +338,8 @@
       const ds = res.districts, main = ds[0];
       let note = "";
       if (ds.length > 1 && main[1] < 90) {
-        note = t("statusPlzMulti", { plz: res.plz, main: dname(main[0]), share: main[1],
-          others: ds.slice(1).map((d) => `${dname(d[0])} (${d[1]} %)`).join(", ") });
+        note = t("statusPlzMulti", { plz: res.plz, main: dname(main[0]), share: t("pct", { v: main[1] }),
+          others: ds.slice(1).map((d) => t("plzOther", { pct: t("pct", { v: d[1] }), name: dname(d[0]) })).join(", ") });
       }
       return setSlot(slot, { id: main[0], point: null, label: `${res.plz} ${res.place}`, source: "plz", note });
     }
@@ -805,7 +805,7 @@
         { k: scoreLabel, v: num(d.x, 2) },
         { k: `${t("leShort")} ${ageText()}`, v: `${num(d.y, 1)} ${t("yearsShort")}` }] })
     });
-    $("#scatter-stat").textContent = t("scatterStat", { r: num(r, 2), slope: signed(slope * 0.1, 2) });
+    $("#scatter-stat").textContent = t(slope < 0 ? "scatterStatNeg" : "scatterStatPos", { r: num(r, 2), slope: num(Math.abs(slope * 0.1), 2) });
 
     // GISD over time
     const host = $("#chart-gisd-trend");
@@ -834,9 +834,9 @@
   const KTYP_YEAR = 2023; // BBSR settlement type from the 2023 spatial reference file
   // soft hyphens so long state names break cleanly in the narrow table columns
   const LAND_SHY = {
-    "Niedersachsen": "Nieder­sachsen", "Mecklenburg-Vorpommern": "Mecklen­burg-Vor­pommern",
-    "Nordrhein-Westfalen": "Nordrhein-West­falen", "Baden-Württemberg": "Baden-Würt­temberg",
-    "Schleswig-Holstein": "Schleswig-Hol­stein", "Brandenburg": "Branden­burg"
+    "Niedersachsen": "Nieder\u00ADsachsen", "Mecklenburg-Vorpommern": "Mecklen\u00ADburg-Vor\u00ADpommern",
+    "Nordrhein-Westfalen": "Nordrhein-West\u00ADfalen", "Baden-Württemberg": "Baden-Würt\u00ADtemberg",
+    "Schleswig-Holstein": "Schleswig-Hol\u00ADstein", "Brandenburg": "Branden\u00ADburg"
   };
   const landText = (id) => { const l = D.dist.get(id).land; return LAND_SHY[l] || l; };
   function fmtInd(key, v) {

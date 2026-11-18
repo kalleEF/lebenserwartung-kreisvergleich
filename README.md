@@ -122,3 +122,11 @@ Please cite the original data when you use numbers or figures from the tool:
 - Address search: Nominatim, data © OpenStreetMap contributors (ODbL). Street-level imagery: Google Street View.
 
 Software: D3.js and TopoJSON client (ISC licence), Source Serif 4 and Libre Franklin (SIL Open Font License 1.1); licence files are in `site/assets/vendor` and `site/assets/fonts`.
+
+## Licence
+
+The code of this tool (HTML, CSS, JavaScript and the Python scripts) is released under the [MIT License](LICENSE). The MIT License does not cover third-party material, which keeps its own licence:
+
+- `site/data/` is derived from the data sources above (CC BY 4.0 and Datenlizenz Deutschland – Namensnennung – Version 2.0). Reuse requires the attributions listed under *Sources and citation*.
+- `site/assets/fonts/`: SIL Open Font License 1.1.
+- `site/assets/vendor/`: D3.js and TopoJSON client, ISC licence.
