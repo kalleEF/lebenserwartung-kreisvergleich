@@ -248,7 +248,8 @@
   /**
    * Line chart with optional bands, markers, end labels and a crosshair tooltip.
    * o: { xs:[numbers], xDomain, xTicks:[{v,label}], series:[{key,color,width,values,band,marker,endLabel}],
-   *      yDomain, yTicks?, yFmt, height, tipSpec(i), ariaLabel, endFmt, title? }
+   *      yDomain, yTicks?, yFmt, height, tipSpec(i), ariaLabel, endFmt, title?,
+   *      highlight?: {x0, x1, label} — shaded x-range drawn behind the grid and data }
    */
   function lineChart(el, o) {
     const C = colors();
@@ -260,6 +261,18 @@
     const y = d3.scaleLinear(o.yDomain, [H - m.b, m.t]).nice();
     const svg = o.svg || svgIn(el, W, H, o.ariaLabel);
     if (o.title) svg.append("text").attr("class", "lbl lbl-strong").attr("x", 0).attr("y", 14).text(o.title);
+
+    // highlighted x-range, e.g. the years that are averaged elsewhere on the page
+    if (o.highlight) {
+      const [r0, r1] = x.range();
+      const hx0 = Math.max(r0, x(o.highlight.x0)), hx1 = Math.min(r1, x(o.highlight.x1));
+      svg.append("rect").attr("x", hx0).attr("y", y.range()[1]).attr("width", Math.max(2, hx1 - hx0))
+        .attr("height", y.range()[0] - y.range()[1]).attr("fill", C.hair).attr("opacity", 0.6);
+      if (o.highlight.label) {
+        svg.append("text").attr("class", "lbl lbl-muted").attr("x", (hx0 + hx1) / 2).attr("y", y.range()[1] - 3)
+          .attr("text-anchor", "middle").text(o.highlight.label);
+      }
+    }
 
     // grid + y labels
     const yt = o.yTicks || y.ticks(H < 200 ? 4 : 5);

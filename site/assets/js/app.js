@@ -8,7 +8,7 @@
     defaultLanguage: "de", credit: "", imprintUrl: "", privacyUrl: "", example: { a: "09188139", b: "05513000" }
   }, window.LE_CONFIG || {});
   const SEX = ["both", "female", "male"];
-  const D = { ready: false, classCache: {}, rankCache: {} };
+  const D = { ready: false, classCache: {}, rankCache: {}, gisdCache: {} };
   const state = { sex: "both", ageIdx: 0, periodIdx: 0, target: "A", slots: { A: null, B: null } };
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
@@ -64,12 +64,38 @@
   function sexText() { return t("sex_" + state.sex); }
   function periodText(p = state.periodIdx) { return D.periods[p]; }
   function periodYears(p) { const [a, b] = D.periods[p].split("–").map(Number); return d3.range(a, b + 1); }
-  function gisdLatestIdx() { return D.gisd.years.length - 1; }
-  function gisdOf(id, yi = gisdLatestIdx()) { const g = D.gisd.values[id]; return g ? g.s[yi] : null; }
   function gisdMean(id, years) {
     const g = D.gisd.values[id]; if (!g) return null;
     const vals = years.map((y) => g.s[D.gisd.years.indexOf(y)]).filter((v) => v !== null && v !== undefined);
     return vals.length ? d3.mean(vals) : null;
+  }
+  // GISD for a period: mean of the annual scores. Quintiles are formed like the official annual ones
+  // (districts ranked by score, 80 per quintile), but from the period means.
+  function gisdPeriod(p = state.periodIdx) {
+    if (!D.gisdCache[p]) {
+      const years = periodYears(p).filter((y) => D.gisd.years.includes(y));
+      const v = new Map(D.ids.map((id) => [id, gisdMean(id, years)]));
+      const ranked = D.ids.filter((id) => v.get(id) !== null).sort((x, y) => v.get(x) - v.get(y) || (x < y ? -1 : 1));
+      const q = new Map(ranked.map((id, i) => [id, 1 + Math.floor((i * 5) / ranked.length)]));
+      D.gisdCache[p] = { years, label: years.length > 1 ? `${years[0]}–${years[years.length - 1]}` : String(years[0]), v, q };
+    }
+    return D.gisdCache[p];
+  }
+  // INKAR values: mean of the annual values in the selected period, using the years with data only
+  function inkarYears(key, p = state.periodIdx) {
+    const ys = D.inkar.years;
+    const cov = key ? D.inkar.coverage[key] : [ys[0], ys[ys.length - 1]];
+    return periodYears(p).filter((y) => y >= cov[0] && y <= cov[1] && ys.includes(y));
+  }
+  function inkarMean(series, years) {
+    if (!series || !years.length) return null;
+    const vals = years.map((y) => series[D.inkar.years.indexOf(y)]).filter((v) => v !== null && v !== undefined);
+    return vals.length ? d3.mean(vals) : null;
+  }
+  function inkarWhen(years, p = state.periodIdx) {
+    const span = years.length > 1 ? t("indMean", { years: `${years[0]}–${years[years.length - 1]}` }) : String(years[0]);
+    const missing = periodYears(p).filter((y) => !years.includes(y));
+    return missing.length ? t("indPartial", { span, missing: missing.join(", ") }) : span;
   }
   function digitsFor(step) { return step >= 1 ? 0 : step >= 0.5 || Math.abs(step * 10 - Math.round(step * 10)) < 1e-9 ? 1 : 2; }
   function euro(v, nd) {
@@ -405,7 +431,8 @@
     const A = state.slots.A, B = state.slots.B;
     $("#gap-sub").textContent = t("gapSub", { A: A ? dname(A.id) : "A", B: B ? dname(B.id) : "B", sexText: sexText(), period: periodText() });
     $("#scatter-sub").textContent = t("scatterSub", { period: periodText(), ageText: ageText(), sexText: sexText() });
-    $("#gisd-strip-sub").textContent = t("gisdStripSub", { year: D.gisd.years[gisdLatestIdx()] });
+    $("#gisd-strip-sub").textContent = t("gisdStripSub", { years: gisdPeriod().label });
+    $("#inkar-sub").textContent = t("inkarIntro", { period: periodText() });
     $("#t400-intro").textContent = t("t400Intro", { ageText: ageText(), sexText: sexText() });
     $("#sv-intro").textContent = t(CFG.googleMapsEmbedApiKey ? "svIntro" : "svIntroNoKey");
   }
@@ -717,9 +744,8 @@
   }
 
   /* --- GISD --- */
-  function quintileBounds(yi) {
-    const groups = d3.groups(D.ids.filter((id) => D.gisd.values[id]), (id) => D.gisd.values[id].q5[yi]);
-    const byQ = new Map(groups.map(([q, ids]) => [q, d3.extent(ids, (id) => D.gisd.values[id].s[yi])]));
+  function quintileBounds(G) {
+    const byQ = d3.rollup(D.ids.filter((id) => G.q.has(id)), (ids) => d3.extent(ids, (id) => G.v.get(id)), (id) => G.q.get(id));
     const bounds = [];
     for (let q = 1; q < 5; q++) {
       const a = byQ.get(q), b = byQ.get(q + 1);
@@ -729,42 +755,42 @@
   }
   function renderGisd() {
     const C = LE.charts.colors();
-    const yi = gisdLatestIdx(), year = D.gisd.years[yi];
+    const G = gisdPeriod();
+    const scoreLabel = t("gisdScore", { years: G.label });
     const cards = $("#gisd-cards");
     cards.replaceChildren();
     for (const k of ["A", "B"]) {
       const s = state.slots[k];
-      if (!s) continue;
-      const g = D.gisd.values[s.id];
-      const q = g.q5[yi];
+      if (!s || !G.q.has(s.id)) continue;
+      const q = G.q.get(s.id);
       const qbar = el("div", { class: "qbar", "aria-hidden": "true" });
       for (let i = 1; i <= 5; i++) qbar.append(el("span", { class: i === q ? "on" : null }));
       cards.append(el("div", { class: "gisd-card " + k.toLowerCase() },
-        el("div", { class: "tile-name", text: `${dname(s.id)} · ${t("gisdScore", { year })}` }),
-        el("div", { class: "gisd-val", text: num(g.s[yi], 2) }),
+        el("div", { class: "tile-name", text: `${dname(s.id)} · ${scoreLabel}` }),
+        el("div", { class: "gisd-val", text: num(G.v.get(s.id), 2) }),
         el("div", { class: "gisd-q", text: `${t("quintile", { q })}: ${t("q" + q)}` }),
         qbar));
     }
 
     // strip of all districts
-    const bounds = quintileBounds(yi);
+    const bounds = quintileBounds(G);
     const edges = [0, ...bounds, 1];
+    const gv = (id) => (G.v.has(id) ? G.v.get(id) : null);
     LE.charts.strip($("#chart-gisd-strip"), {
-      items: D.ids.map((id) => ({ id, v: gisdOf(id) })), domain: [0, 1],
-      a: state.slots.A ? { id: state.slots.A.id, v: gisdOf(state.slots.A.id), label: dname(state.slots.A.id) } : null,
-      b: state.slots.B ? { id: state.slots.B.id, v: gisdOf(state.slots.B.id), label: dname(state.slots.B.id) } : null,
+      items: D.ids.map((id) => ({ id, v: gv(id) })).filter((d) => d.v !== null), domain: [0, 1],
+      a: state.slots.A ? { id: state.slots.A.id, v: gv(state.slots.A.id), label: dname(state.slots.A.id) } : null,
+      b: state.slots.B ? { id: state.slots.B.id, v: gv(state.slots.B.id), label: dname(state.slots.B.id) } : null,
       bounds: bounds.map((v) => ({ v })),
       boundLabels: d3.range(5).map((i) => ({ v: (edges[i] + edges[i + 1]) / 2, label: "Q" + (i + 1) })),
       ticks: [0, 0.2, 0.4, 0.6, 0.8, 1], tickFmt: (v) => num(v, 1), valueFmt: (v) => num(v, 2),
-      lowLabel: t("gisdLess"), highLabel: t("gisdMore"), ariaLabel: t("gisdStripSub", { year }),
+      lowLabel: t("gisdLess"), highLabel: t("gisdMore"), ariaLabel: t("gisdStripSub", { years: G.label }),
       tipSpec: (d) => ({ title: dname(d.id), sub: dsub(d.id), rows: [
-        { k: t("gisdScore", { year }), v: num(d.v, 2) },
-        { k: t("quintile", { q: D.gisd.values[d.id].q5[yi] }), v: t("q" + D.gisd.values[d.id].q5[yi]) }] })
+        { k: scoreLabel, v: num(d.v, 2) },
+        { k: t("quintile", { q: G.q.get(d.id) }), v: t("q" + G.q.get(d.id)) }] })
     });
 
     // scatter GISD vs LE
-    const yrs = periodYears(state.periodIdx);
-    const items = D.ids.map((id) => ({ id, x: gisdMean(id, yrs), y: le(id) }));
+    const items = D.ids.map((id) => ({ id, x: gv(id), y: le(id) }));
     const ok = items.filter((d) => d.x !== null && d.y !== null);
     const mx = d3.mean(ok, (d) => d.x), my = d3.mean(ok, (d) => d.y);
     let sxy = 0, sxx = 0, syy = 0;
@@ -776,7 +802,7 @@
       xFmt: (v) => num(v, 1), yFmt: (v) => num(v, Number.isInteger(v) ? 0 : 1),
       xLabel: t("scatterX"), yLabel: `${t("leShort")} (${t("years")})`, ariaLabel: t("scatterTitle"),
       tipSpec: (d) => ({ title: dname(d.id), sub: dsub(d.id), rows: [
-        { k: `GISD (${periodText()})`, v: num(d.x, 2) },
+        { k: scoreLabel, v: num(d.x, 2) },
         { k: `${t("leShort")} ${ageText()}`, v: `${num(d.y, 1)} ${t("yearsShort")}` }] })
     });
     $("#scatter-stat").textContent = t("scatterStat", { r: num(r, 2), slope: signed(slope * 0.1, 2) });
@@ -791,6 +817,7 @@
       xs: years, xDomain: [years[0], years[years.length - 1]],
       xTicks: [1998, 2003, 2008, 2013, 2018, 2023].map((v) => ({ v, label: String(v) })),
       series: ser, yDomain: [0, 1], yTicks: [0, 0.2, 0.4, 0.6, 0.8, 1], yFmt: (v) => num(v, 1), height: 200,
+      highlight: { x0: G.years[0] - 0.5, x1: G.years[G.years.length - 1] + 0.5, label: G.label },
       ariaLabel: t("gisdTrendTitle"),
       tipSpec: (i) => ({ title: String(years[i]), rows: sel.map(([k, s]) => ({
         color: k === "A" ? C.a : C.b, k: dname(s.id),
@@ -804,6 +831,14 @@
     alo: { nd: 1, unit: "" }, beschq: { nd: 1, unit: "" }, brutto: { nd: 0, unit: "€" },
     est: { nd: 0, unit: "€" }, hhek: { nd: 0, unit: "€" }, schuldner: { nd: 1, unit: "%" }
   };
+  const KTYP_YEAR = 2023; // BBSR settlement type from the 2023 spatial reference file
+  // soft hyphens so long state names break cleanly in the narrow table columns
+  const LAND_SHY = {
+    "Niedersachsen": "Nieder­sachsen", "Mecklenburg-Vorpommern": "Mecklen­burg-Vor­pommern",
+    "Nordrhein-Westfalen": "Nordrhein-West­falen", "Baden-Württemberg": "Baden-Würt­temberg",
+    "Schleswig-Holstein": "Schleswig-Hol­stein", "Brandenburg": "Branden­burg"
+  };
+  const landText = (id) => { const l = D.dist.get(id).land; return LAND_SHY[l] || l; };
   function fmtInd(key, v) {
     if (v === null || v === undefined) return "–";
     const m = IND_META[key];
@@ -814,10 +849,18 @@
     const tbl = $("#ind-table");
     tbl.replaceChildren();
     const A = state.slots.A, B = state.slots.B;
+    // column heads show the A/B badges (district names are often too long for the narrow columns);
+    // the legend above the table names the districts
+    const badge = (k) => el("span", { class: `key key-${k.toLowerCase()} key-md`, "aria-hidden": "true", text: k });
+    const lg = $("#inkar-legend");
+    lg.replaceChildren();
+    for (const [k, s] of [["A", A], ["B", B]]) if (s) lg.append(el("span", {}, badge(k), document.createTextNode(dname(s.id))));
+    lg.append(el("span", {}, el("i", { class: "lkey lkey-tick lkey-ink" }), document.createTextNode(t("germany"))),
+      el("span", {}, el("i", { class: "lkey lkey-tick lkey-ctx" }), document.createTextNode(t("colDistribution"))));
+    const keyHead = (k, s) => el("th", { scope: "col", class: "num" }, badge(k), el("span", { class: "visually-hidden", text: s ? dname(s.id) : k }));
     const head = el("tr", {},
       el("th", { scope: "col", text: t("colIndicator") }),
-      el("th", { scope: "col", class: "num" }, el("span", { class: "th-key" }, el("span", { class: "key key-a key-sm", "aria-hidden": "true" }), el("span", { class: "th-name", text: A ? dname(A.id) : "A" }))),
-      el("th", { scope: "col", class: "num" }, el("span", { class: "th-key" }, el("span", { class: "key key-b key-sm", "aria-hidden": "true" }), el("span", { class: "th-name", text: B ? dname(B.id) : "B" }))),
+      keyHead("A", A), keyHead("B", B),
       el("th", { scope: "col", class: "num", text: t("colGermany") }),
       el("th", { scope: "col", class: "ind-strip", text: t("colDistribution") }));
     tbl.append(el("colgroup", {}, el("col", { class: "c-name" }), el("col", { class: "c-a" }), el("col", { class: "c-b" }),
@@ -846,33 +889,40 @@
       body.append(tr);
     };
 
-    // context
-    const popYi = D.inkar.years.length - 1;
-    const pop = (id) => (D.inkar.population[id] ? D.inkar.population[id][popYi] : null);
+    // context: population as the mean of the period's years, like the indicators
+    const popYears = inkarYears(null);
+    const pop = (id) => inkarMean(D.inkar.population[id], popYears);
     const area = (id) => D.dist.get(id).area;
     const areaDE = d3.sum(D.ids, area);
     dimRow(t("dim_ctx"));
-    row([el("div", { class: "ind-name", text: t("ctx_land") })], A ? D.dist.get(A.id).land : "–", B ? D.dist.get(B.id).land : "–", "–", null, true);
-    row([el("div", { class: "ind-name", text: t("ctx_pop") }), el("div", { class: "ind-dir", text: String(D.inkar.years[popYi]) })],
+    row([el("div", { class: "ind-name", text: t("ctx_land") })], A ? landText(A.id) : "–", B ? landText(B.id) : "–", "–", null, true);
+    row([el("div", { class: "ind-name", text: t("ctx_pop") }), el("div", { class: "ind-dir", text: inkarWhen(popYears) })],
       A ? int(pop(A.id)) : "–", B ? int(pop(B.id)) : "–", int(pop("DE")), null);
-    row([el("div", { class: "ind-name", text: t("ctx_density") }), el("div", { class: "ind-dir", text: String(D.inkar.years[popYi]) })],
+    row([el("div", { class: "ind-name", text: t("ctx_density") }), el("div", { class: "ind-dir", text: inkarWhen(popYears) })],
       A ? int(pop(A.id) / area(A.id)) : "–", B ? int(pop(B.id) / area(B.id)) : "–", int(pop("DE") / areaDE), null);
-    row([el("div", { class: "ind-name", text: t("ctx_type") })], A ? t("ktyp" + D.dist.get(A.id).ktyp) : "–",
-      B ? t("ktyp" + D.dist.get(B.id).ktyp) : "–", "–", null, true);
+    row([el("div", { class: "ind-name", text: t("ctx_type") }), el("div", { class: "ind-dir", text: t("asOf", { year: KTYP_YEAR }) })],
+      A ? t("ktyp" + D.dist.get(A.id).ktyp) : "–", B ? t("ktyp" + D.dist.get(B.id).ktyp) : "–", "–", null, true);
 
     for (const dim of ["edu", "emp", "inc"]) {
       dimRow(t("dim_" + dim));
       for (const [key, ind] of Object.entries(D.inkar.indicators)) {
         if (ind.dim !== dim) continue;
-        const year = D.inkar.coverage[key][1];
-        const yi = D.inkar.years.indexOf(year);
-        const v = (id) => (ind.values[id] ? ind.values[id][yi] : null);
+        const years = inkarYears(key);
+        const dir = ind.sign > 0 ? t("higherWorse") : t("higherBetter");
+        const name = [el("div", { class: "ind-name", text: t("ind_" + key) }), el("div", { class: "ind-def", text: t("ind_" + key + "_def") })];
+        if (!years.length) {
+          // no data in any year of the period (e.g. degree shares before 2012)
+          const [from, to] = D.inkar.coverage[key];
+          const why = periodYears(state.periodIdx)[0] > to ? t("indNAto", { period: periodText(), to }) : t("indNA", { period: periodText(), from });
+          name.push(el("div", { class: "ind-dir", text: `${why} · ${dir}` }));
+          row(name, "–", "–", "–", null);
+          continue;
+        }
+        const v = (id) => inkarMean(ind.values[id], years);
         const all = D.ids.map(v);
-        row([el("div", { class: "ind-name", text: t("ind_" + key) }),
-          el("div", { class: "ind-def", text: t("ind_" + key + "_def") }),
-          el("div", { class: "ind-dir", text: `${year} · ${ind.sign > 0 ? t("higherWorse") : t("higherBetter")}` })],
-        A ? fmtInd(key, v(A.id)) : "–", B ? fmtInd(key, v(B.id)) : "–", fmtInd(key, v("DE")),
-        (svg) => LE.charts.miniStrip(svg, { values: all, de: v("DE"), a: A ? v(A.id) : null, b: B ? v(B.id) : null }));
+        name.push(el("div", { class: "ind-dir", text: `${inkarWhen(years)} · ${dir}` }));
+        row(name, A ? fmtInd(key, v(A.id)) : "–", B ? fmtInd(key, v(B.id)) : "–", fmtInd(key, v("DE")),
+          (svg) => LE.charts.miniStrip(svg, { values: all, de: v("DE"), a: A ? v(A.id) : null, b: B ? v(B.id) : null }));
       }
     }
     for (const f of posts) f();
@@ -882,13 +932,14 @@
   const t400Sort = { key: "le", dir: -1 };
   function renderT400() {
     const wrap = $("#t400-wrap");
-    const L = lastP(), yi = gisdLatestIdx();
-    const rows = D.ids.map((id) => ({ id, name: dname(id), land: D.dist.get(id).land, le: le(id), chg: r1(le(id, L)) - r1(le(id, 0)), gisd: gisdOf(id) }));
+    const L = lastP(), G = gisdPeriod();
+    const rows = D.ids.map((id) => ({ id, name: dname(id), land: D.dist.get(id).land, le: le(id), chg: r1(le(id, L)) - r1(le(id, 0)),
+      gisd: G.v.has(id) ? G.v.get(id) : null }));
     const cols = [
       { key: "name", label: t("t400District") }, { key: "land", label: t("t400Land") },
       { key: "le", label: t("t400Le", { period: periodText() }), num: true },
       { key: "chg", label: t("t400Change", { first: periodText(0) }), num: true },
-      { key: "gisd", label: t("t400Gisd", { year: D.gisd.years[yi] }), num: true }
+      { key: "gisd", label: t("t400Gisd", { years: G.label }), num: true }
     ];
     const { key, dir } = t400Sort;
     rows.sort((a, b) => (typeof a[key] === "string" ? a[key].localeCompare(b[key], I.getLang()) : a[key] - b[key]) * dir);

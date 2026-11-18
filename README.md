@@ -5,7 +5,7 @@ An interactive web tool for teaching and science communication. Users pick two p
 - **Main comparison:** life expectancy at birth, latest period (2020–2021), both sexes combined, with the difference in years and each district's rank among all 400.
 - **Settings:** sex (total, women, men), age (0, 1, 5, 10 … 90 → remaining life expectancy) and period (2003–2005, 2009–2011, 2017–2019, 2020–2021).
 - **Change** between the first period (2003–2005) and the latest (2020–2021), with the median of all districts as reference.
-- **Context:** the distribution across all 400 districts, annual estimates 2003–2021 with 95 % confidence intervals, the gap at every age, the GISD deprivation score (strip, scatter plot with regression, trend since 1998) and the nine GISD indicators from INKAR.
+- **Context:** the distribution across all 400 districts, annual estimates 2003–2021 with 95 % confidence intervals, the gap at every age, the GISD deprivation score (strip, scatter plot with regression, trend since 1998) and the nine GISD indicators from INKAR, each averaged over the selected period.
 - **Street View:** for addresses, towns, coordinates and the browser location, a link to Google Street View. The embedded picture appears once a Google Maps Embed API key is set (see below).
 - Interface in German (default) and English, light and dark mode, shareable links, works on phones.
 
@@ -103,8 +103,9 @@ python scripts/build_data.py --raw raw --out site/data
 Processing notes:
 
 - Life expectancy by period and age comes from sheets `Figure2` (both sexes), `FigureS2` (women) and `FigureS1` (men); annual values with 95 % CIs from `Figure1`. District codes are harmonised to five digits.
-- GISD: district level (`region_type == "Kreis"`) of `GISD_Bund.tsv`, release 2026-05-18, 1998–2023. In the scatter plot, the GISD is averaged over the years of the selected period.
+- GISD: district level (`region_type == "Kreis"`) of `GISD_Bund.tsv`, release 2026-05-18, 1998–2023. Cards, strip, scatter plot and the table of all districts show the mean of the annual scores in the selected period; only the trend chart shows single years. Quintiles of the period means are formed like the official district quintiles: districts ranked by score, 80 per quintile (`gisdPeriod` in `app.js`). Applied to single years, this rule reproduces the official `gisd_5` classes except for a few pairs of districts whose rounded scores are tied (36 of 10,400 district-years).
 - INKAR 2025 indicators (district level): `a_svw_akadem`, `a_svw_oAbschluss`, `a_schul_oA`, `q_svw`, `d_Bruttoverdienst`, `q_einkst_bev`, `d_Hausshaltseinkommen`, `q_Schuldner`; unemployment is computed like in the GISD code as `alo / ewf_1565_ges × 100`; population `xbev`. **Known issue:** the INKAR 2025 bulk file stores the 2023 *Schuldnerquote* 100 times too high (Germany 821.8 instead of 8.2 %); the build script divides values above 100 by 100 and logs it.
+- INKAR table: every indicator, and the population, is the mean of the annual values in the selected period; years without data are skipped. `q_Schuldner` starts in 2004 (so 2003–2005 uses 2004–2005), `a_svw_akadem` and `a_svw_oAbschluss` start in 2012 (so they are empty for 2003–2005 and 2009–2011). Euro values are nominal. The averaging happens in the browser (`inkarYears`/`inkarMean` in `app.js`); `data.json` keeps the annual values.
 - Map colour classes are equal intervals that stay fixed across periods for a given age and sex, so changes over time are visible. Differences shown on screen are computed from the rounded values, so the arithmetic on screen adds up.
 - Settlement type: BBSR *Siedlungsstruktureller Kreistyp* 2023 (reference file shipped with INKAR 2025).
 
